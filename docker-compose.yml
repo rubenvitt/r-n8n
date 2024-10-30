@@ -7,8 +7,7 @@ services:
     environment:
       GENERIC_TIMEZONE: Europe/Berlin
       TZ: Europe/Berlin
-      N8N_HOST: ${HOSTNAME}
-      N8N_PORT: ${PORT}
+      N8N_HOST: ${N8N_HOST}
       N8N_PROTOCOL: https
     ports:
       - 10008:5678
