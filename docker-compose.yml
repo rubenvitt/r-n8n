@@ -1,6 +1,6 @@
 services:
   n8n:
-    image: n8n/n8n:latest
+    image: ghrc.io/rubenvitt/r-n8n:latest
     build:
       context: .
       dockerfile: Dockerfile
