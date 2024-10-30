@@ -3,12 +3,16 @@ FROM n8nio/n8n:latest
 USER root
 
 # We don't need the standalone Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser \
+    CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/ \
+    PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage --disable-gpu"
 
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
+# Install Chromium and dependencies
 RUN apk update && apk add --no-cache \
     chromium \
+    chromium-chromedriver \
     nss \
     freetype \
     freetype-dev \
@@ -17,8 +21,6 @@ RUN apk update && apk add --no-cache \
     ttf-freefont \
     nodejs \
     yarn \
-    chromium-chromedriver \
-    xvfb \
     dbus \
     mesa-gl \
     libxcomposite \
@@ -27,21 +29,31 @@ RUN apk update && apk add --no-cache \
     libgcc \
     libxi \
     libxscrnsaver \
-    libxtst
+    libxtst \
+    libx11 \
+    libxext \
+    libxfixes \
+    libxrender \
+    libxcb \
+    xvfb
 
-# Setzen Sie die Chromium-Umgebungsvariablen
-ENV CHROME_BIN=/usr/bin/chromium-browser \
-    CHROME_PATH=/usr/lib/chromium/ \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+# Install puppeteer globally
+RUN npm install -g puppeteer@19.11.1
 
-# Fügen Sie diese Zeile nach den ENV-Variablen hinzu
-ENV PUPPETEER_ARGS="--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage"
-
-RUN npm install puppeteer
-
-# Erstellen Sie das Verzeichnis für Chrome und setzen Sie die Berechtigungen
+# Erstellen Sie benötigte Verzeichnisse und setzen Sie Berechtigungen
 RUN mkdir -p /home/node/.cache/puppeteer && \
-    chown -R node:node /home/node/.cache
+    mkdir -p /tmp/.X11-unix && \
+    chmod 1777 /tmp/.X11-unix && \
+    chown -R node:node /home/node
 
-# Wechseln Sie zurück zum n8n Benutzer für bessere Sicherheit
+# Setzen Sie die Display-Umgebungsvariable für Xvfb
+ENV DISPLAY=:99
+
+# Erstellen Sie ein Startskript
+RUN echo '#!/bin/sh\nXvfb :99 -screen 0 1024x768x16 & n8n' > /start.sh && \
+    chmod +x /start.sh
+
 USER node
+
+# Überschreiben Sie den Standard-Entrypoint
+ENTRYPOINT ["/start.sh"]
