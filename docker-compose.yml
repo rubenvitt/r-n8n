@@ -8,9 +8,10 @@ services:
       GENERIC_TIMEZONE: Europe/Berlin
       TZ: Europe/Berlin
       N8N_HOST: ${N8N_HOST}
+      N8N_PORT: 443
       N8N_PROTOCOL: https
     ports:
-      - 10008:5678
+      - 10008:443
     volumes:
       - data:/home/node/.n8n
 
