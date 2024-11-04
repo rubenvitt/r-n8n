@@ -1,9 +1,9 @@
 services:
   n8n:
-    image: ghrc.io/rubenvitt/r-n8n:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: n8nio/n8n:latest
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
     environment:
       GENERIC_TIMEZONE: Europe/Berlin
       TZ: Europe/Berlin
